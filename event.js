@@ -40,7 +40,7 @@ exports.Event = class Event {
     }
     availabilities(fromDate, toDate) {
         allDatesAvailable = this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
-        //allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
+        allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
         console.log('array ==> ', allDatesAvailable);
     }
 
@@ -58,7 +58,6 @@ exports.Event = class Event {
                         console.log("array key value => ", array[key]);
                         console.log("toDate key value => ", toDate); */
                         if (array[key] >= fromDate) {
-                            console.log("ok");
                             arrayValidates.push(new Date(array[key].setDate(dayOfMonth + addDays)));
                         }
                         addDays += 7;
@@ -73,14 +72,15 @@ exports.Event = class Event {
         for(var key in array) {
             if(Number.isInteger(key / 2)) {
                 var earlyWhile = array[key];
-                while(earlyWhile < array[key + 1]) {
+                var keyTmp = parseInt(key);
+                while(earlyWhile <= array[keyTmp + 1]) {
+                    console.log(earlyWhile);
                     if (array[key] >= fromDate && array[key] <= toDate) {
                         arrayValidates.push(array[key]);
                     }
-                    i++;
+                    earlyWhile.setDate(earlyWhile.getDate() + 1);
                 }
-                earlyWhile.setDate(earlyWhile.getDate() + 1);
-                }
+            }
         }
         return arrayValidates;
     }
