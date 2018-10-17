@@ -39,26 +39,52 @@ exports.Event = class Event {
         return eventList;
     }
     availabilities(fromDate, toDate) {
-        var i = 0;
-        var addDays = 7;
-        for(var key in openDatesRecurring) {
+        allDatesAvailable = this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
+        //allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
+        console.log('array ==> ', allDatesAvailable);
+    }
+
+    recoverAvalaibleDatesRecurring(array, arrayValidates, fromDate, toDate) {
+        var addDays = 0;
+        for(var key in array) {
             if(Number.isInteger(key / 2)) {
-                var earlyWhile = openDatesRecurring[key];
-                while(openDatesRecurring[key] < openDatesRecurring[key + 1]) {
-                    var dayOfMonth = openDatesRecurring[key].getDate();
-                    while(openDatesRecurring[key].setDate(dayOfMonth + addDays) <= toDate) {
-                        if (openDatesRecurring[key] >= fromDate && Number.isInteger(i / 2)) {
-                            allDatesAvailable.push(openDatesRecurring[key].setDate(dayOfMonth + addDays));
+                var earlyWhile = array[key];
+                var keyTmp = parseInt(key);
+                while(earlyWhile <= array[keyTmp + 1]) {
+                    var dayOfMonth = array[key].getDate();
+                    while(new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate) {
+                        /* console.log("Test de relance ====================================== ", new Date(array[key].setDate(dayOfMonth + addDays)));
+                        console.log("Key ===> ", key);
+                        console.log("array key value => ", array[key]);
+                        console.log("toDate key value => ", toDate); */
+                        if (array[key] >= fromDate) {
+                            console.log("ok");
+                            arrayValidates.push(new Date(array[key].setDate(dayOfMonth + addDays)));
                         }
-                        i++;
                         addDays += 7;
                     }
                     earlyWhile.setDate(earlyWhile.getDate() + 1);
                 }
             }
         }
-        console.log('array ==> ', allDatesAvailable);
+        return arrayValidates;
     }
+    recoverAvalaibleDatesUniques(array, arrayValidates, fromDate, toDate) {
+        for(var key in array) {
+            if(Number.isInteger(key / 2)) {
+                var earlyWhile = array[key];
+                while(earlyWhile < array[key + 1]) {
+                    if (array[key] >= fromDate && array[key] <= toDate) {
+                        arrayValidates.push(array[key]);
+                    }
+                    i++;
+                }
+                earlyWhile.setDate(earlyWhile.getDate() + 1);
+                }
+        }
+        return arrayValidates;
+    }
+
             /* console.log("element ===> ", element);
             if(Number.isInteger(i /2)) {
                 if (i != 0 && i != openDatesRecurring.length - 1) {
