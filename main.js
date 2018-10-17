@@ -1,10 +1,10 @@
 var eventPage = require ("./event.js");
 var Event = eventPage.Event;
 
-new Event().availabilities ("fromDate", "toDate");
-console.log(new Event().returnEventList());
+/* new Event().availabilities ("fromDate", "toDate");
+console.log(new Event().returnEventList()); */
 
-/* var startDate = new Date(2018,6,1,10,30); // June 1st, 10:30
+var startDate = new Date(2018,6,1,10,30); // June 1st, 10:30
 var endDate = new Date(2018,6,1,14,00); // June 1st, 14:00
 
 new Event(true, true, startDate, endDate); // weekly recurring opening in calendar
@@ -16,7 +16,7 @@ new Event(false, false, startDate, endDate); // intervention scheduled
 var fromDate = new Date(2018,6,4,10,00);
 var toDate = new Date(2018,6,10,10,00);
 
-Event.prototype.availabilities(fromDate, toDate); */
+console.log(new Event().returnEventList());
 
 /*
  * Answer should be : 

@@ -10,8 +10,7 @@ exports.Event = class Event {
         eventList.push(this);
     }
     returnEventList() {
-        //return eventList;
-        return "This is evenList";
+        return eventList;
     }
     availabilities(fromDate, toDate) {
         console.log('First test ')
