@@ -1,7 +1,11 @@
 var eventList = [];
 
 exports.Event = class Event {
-    constructor(opening, recurring, startDate, endDate) {
+    constructor() {
+
+    };
+
+    addEventList(opening, recurring, startDate, endDate) {
         this.opening = opening;
         this.recurring = recurring;
         this.startDate = startDate;
@@ -13,7 +17,11 @@ exports.Event = class Event {
         return eventList;
     }
     availabilities(fromDate, toDate) {
-        console.log('First test ')
+        let i = 0;
+        eventList.forEach(element => {
+            i++;
+            console.log("Element n° " + i + " ===> ", element);
+        });
     }
 };
 
