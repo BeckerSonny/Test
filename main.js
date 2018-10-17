@@ -16,9 +16,6 @@ Event.addEventList(false, false, startDate, endDate); // intervention scheduled
 var fromDate = new Date(2018,6,4,10,00);
 var toDate = new Date(2018,6,10,10,00);
 
-
-console.log(Event.returnEventList());
-console.log("\n\n\n");
 Event.availabilities (fromDate, toDate);
 
 /*
