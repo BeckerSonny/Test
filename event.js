@@ -19,56 +19,52 @@ exports.Event = class Event {
         eventList.push(this); */
         if (opening === true) {
             if (recurring === true) {
-                openDatesRecurring.push(startDate);
-                openDatesRecurring.push(endDate);
+                openDatesRecurring.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
             } else {
-                openDatesUniques.push(startDate);
-                openDatesUniques.push(endDate);
+                openDatesUniques.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
             }
         } else {
             if (recurring === true) {
-                closeDatesRecurring.push(startDate);
-                closeDatesRecurring.push(endDate);
+                closeDatesRecurring.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
             } else {
-                closeDatesUniques.push(startDate);
-                closeDatesUniques.push(endDate);
+                closeDatesUniques.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
             }
         }
     }
+
     returnEventList() {
         return eventList;
     }
+
     availabilities(fromDate, toDate) {
+        fromDate = new Date(fromDate.setHours(fromDate.getHours() + 2));
+        toDate = new Date(toDate.setHours(toDate.getHours() + 2));
         allDatesAvailable = this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
         allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
+        // console.log('Validates array before delete => ', allDatesAvailable);
         allDatesAvailable = this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
         allDatesAvailable = this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
-        console.log('\n\n\n');
-        console.log('array ==> ', allDatesAvailable);
+        // console.log('Validates array after delete => ', allDatesAvailable);
+        this.createSentence(allDatesAvailable);
     }
 
     recoverAvalaibleDatesRecurring(array, arrayValidates, fromDate, toDate) {
         var addDays = 0;
         for(var key in array) {
-            if(Number.isInteger(key / 2)) {
-                var earlyWhile = array[key];
-                var keyTmp = parseInt(key);
-                while(earlyWhile <= array[keyTmp + 1]) {
-                    var dayOfMonth = array[key].getDate();
-                    while(new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate) {
-                        /* console.log("Test de relance ====================================== ", new Date(array[key].setDate(dayOfMonth + addDays)));
-                        console.log("Key ===> ", key);
-                        console.log("array key value => ", array[key]);
-                        console.log("toDate key value => ", toDate); */
-                        if (array[key] >= fromDate) {
-                            arrayValidates.push(new Date(array[key].setDate(dayOfMonth + addDays)));
-                        }
-                        addDays += 7;
+            var earlyWhile = array[key];
+            var keyTmp = parseInt(key);
+            while(earlyWhile <= array[keyTmp + 1]) {
+                var dayOfMonth = array[key].getDate();
+                    if (new Date(array[key].setDate(dayOfMonth + addDays)) >= fromDate && new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate) {
+                        arrayValidates.push(
+                            new Date(array[key].setDate(dayOfMonth + addDays)),
+                            new Date(array[keyTmp + 1].setDate(dayOfMonth + addDays))
+                        );
                     }
-                    earlyWhile.setDate(earlyWhile.getDate() + 1);
+                    addDays += 7;
                 }
+                earlyWhile.setDate(earlyWhile.getDate() + 1);
             }
-        }
         return arrayValidates;
     }
 
@@ -83,6 +79,8 @@ exports.Event = class Event {
                     }
                     earlyWhile.setDate(earlyWhile.getDate() + 1);
                 }
+            } else if (array[key] <= toDate && array[key] >= fromDate) {
+                arrayValidates.push(new Date(array[key]));
             }
         }
         return arrayValidates;
@@ -94,17 +92,52 @@ exports.Event = class Event {
             if(Number.isInteger(key / 2)) {
                 var keyTmp = parseInt(key);
                 for(var keyToDelete in array) {
-                    var dayOfMonth = array[keyToDelete].getDate();
-                    while(new Date(array[keyToDelete].setDate(dayOfMonth + addDays)) <= toDate) {
+                    if (Number.isInteger(keyToDelete / 2)) {
+                        while(new Date(array[keyToDelete].setDate(array[keyToDelete].getDate() + addDays)) <= toDate) {
+                            let newDate = new Date(array[keyToDelete].setDate(array[keyToDelete].getDate() + addDays));
+                            if (arrayValidates[key].getDate() == newDate.getDate() &&
+                            arrayValidates[key].getMonth() == newDate.getMonth() &&
+                            arrayValidates[key].getYear() == newDate.getYear()) {
+                                if (newDate.getHours() >= arrayValidates[key].getHours()) {
+                                    let keyToDeleteTmp = parseInt(keyToDelete);
+                                    arrayValidates.splice(key + 1, 0,
+                                        new Date(newDate.setMinutes(array[keyToDeleteTmp].getMinutes() - 30)),
+                                        new Date(array[keyToDelete].setMinutes(array[keyToDelete].getMinutes() + 90))
+                                    );
+                                }
+                            }
+                            addDays += 7;
+                        }
+                    }
+                }
+            }
+        }
+        //console.log('End recuring remove ===> ', arrayValidates);
+        return arrayValidates;
+    }
+
+    removeInavailableDatesUniques(array, arrayValidates) {
+        /* console.log('ArrayValidates ==> ', arrayValidates);
+        console.log('\n');
+        console.log('arrayToDelete ==> ', array); */
+        for(var key in arrayValidates) {
+            if(Number.isInteger(key / 2)) {
+                let keyTmp = parseInt(key);
+                for(var keyToDelete in array) {
+                    if(Number.isInteger(keyToDelete / 2)) {
                         if (arrayValidates[key].getDate() == array[keyToDelete].getDate() &&
                         arrayValidates[key].getMonth() == array[keyToDelete].getMonth() &&
                         arrayValidates[key].getYear() == array[keyToDelete].getYear()) {
                             if (array[keyToDelete].getHours() >= arrayValidates[key].getHours()) {
-                                keyToDeleteTmp = parseInt(keyToDelete);
-                                arrayValidates.splice(key + 1, 0, array[keyToDelete], array[keyToDeleteTmp + 1]);
+                                let keyToDeleteTmp = parseInt(keyToDelete);
+                                arrayValidates.splice(
+                                    key + 1,
+                                    0,
+                                    new Date(array[keyToDelete].setMinutes(array[keyToDelete].getMinutes() - 30)),
+                                    new Date(array[keyToDelete].setMinutes(array[keyToDelete].getMinutes() + 90))
+                                );
                             }
                         }
-                    addDays += 7;
                     }
                 }
             }
@@ -112,26 +145,30 @@ exports.Event = class Event {
         return arrayValidates;
     }
 
-    removeInavailableDatesUniques(array, arrayValidates) {
-        console.log('Remove unique');
-        for(var key in arrayValidates) {
-            console.log("Key / 2 ==> ", key / 2)
-            if(Number.isInteger(key / 2)) {
-                let keyTmp = parseInt(key);
-                for(var keyToDelete in array) {
-                    console.log("Array key to delete ==> ", array[keyToDelete]);
-                    if (arrayValidates[key].getDate() == array[keyToDelete].getDate() &&
-                    arrayValidates[key].getMonth() == array[keyToDelete].getMonth() &&
-                    arrayValidates[key].getYear() == array[keyToDelete].getYear()) {
-                        if (array[keyToDelete].getHours() >= arrayValidates[key].getHours()) {
-                            let keyToDeleteTmp = parseInt(keyToDelete);
-                            arrayValidates.splice(key + 1, 0, array[keyToDelete], array[keyToDeleteTmp + 1]);
-                        }
-                    }
+    createSentence(array) {
+        var sentence = "We are are available"
+        for(var key in array) {
+            var keyTmp = parseInt(key);
+            let MinutesEarly = array[key].getMinutes();;
+            if (MinutesEarly == 0) {
+                MinutesEarly += "0";
+            }
+            if (array[keyTmp + 1] != undefined) {
+                var MinutesEnd = array[keyTmp + 1].getMinutes();
+                if (MinutesEnd == 0) {
+                    MinutesEnd += "0";
+                }
+            }
+            if (Number.isInteger(key / 2)) {
+                sentence += " the " + array[key].getDate() + "/" + array[key].getMonth() + "/" + array[key].getFullYear() + " from " + array[key].getHours() + ":" + MinutesEarly + " to " + array[keyTmp + 1].getHours() + ":" + MinutesEnd;
+                if (array[keyTmp + 2] != undefined) {
+                    sentence += " and";
+                } else {
+                    sentence += ".";
                 }
             }
         }
-        return arrayValidates;
+        console.log(sentence);
     }
 
             /* console.log("element ===> ", element);
