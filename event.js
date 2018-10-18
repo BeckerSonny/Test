@@ -1,4 +1,3 @@
-var eventList = [];
 var openDatesRecurring = [];
 var openDatesUniques = [];
 var closeDatesRecurring = [];
@@ -11,23 +10,17 @@ exports.Event = class Event {
     };
 
     addEventList(opening, recurring, startDate, endDate) {
-        /* this.opening = opening;
-        this.recurring = recurring;
-        this.startDate = startDate;
-        this.endDate = endDate;
-
-        eventList.push(this); */
         if (opening === true) {
             if (recurring === true) {
-                openDatesRecurring.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
+                openDatesRecurring.push(new Date(startDate), new Date(endDate));
             } else {
-                openDatesUniques.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
+                openDatesUniques.push(new Date(startDate), new Date(endDate));
             }
         } else {
             if (recurring === true) {
-                closeDatesRecurring.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
+                closeDatesRecurring.push(new Date(startDate), new Date(endDate));
             } else {
-                closeDatesUniques.push(new Date(startDate.setHours(startDate.getHours())), new Date(endDate.setHours(endDate.getHours())));
+                closeDatesUniques.push(new Date(startDate), new Date(endDate));
             }
         }
     }
@@ -37,25 +30,35 @@ exports.Event = class Event {
     }
 
     availabilities(fromDate, toDate) {
-        fromDate = new Date(fromDate.setHours(fromDate.getHours() + 2));
-        toDate = new Date(toDate.setHours(toDate.getHours() + 2));
         allDatesAvailable = this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
         allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
-        // console.log('Validates array before delete => ', allDatesAvailable);
+        //console.log('Validates array before delete => ', allDatesAvailable);
         allDatesAvailable = this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
         allDatesAvailable = this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
-        // console.log('Validates array after delete => ', allDatesAvailable);
+        //console.log('Validates array after delete => ', allDatesAvailable);
         this.createSentence(allDatesAvailable);
     }
 
     recoverAvalaibleDatesRecurring(array, arrayValidates, fromDate, toDate) {
-        var addDays = 0;
-        for(var key in array) {
-            var earlyWhile = array[key];
-            var keyTmp = parseInt(key);
+        console.log("array recover recurring ==> ", array);
+        let addDays = 0;
+        for(let key in array) {
+            let earlyWhile = array[key];
+            let keyTmp = parseInt(key);
+            /* console.log("Array Key ==> ", array[key]);
+            console.log("fromDate ==> ", fromDate);
+            console.log("toDate ==> ", toDate);
+            console.log("\n"); */
             while(earlyWhile <= array[keyTmp + 1]) {
-                var dayOfMonth = array[key].getDate();
-                    if (new Date(array[key].setDate(dayOfMonth + addDays)) >= fromDate && new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate) {
+                let dayOfMonth = array[key].getDate();
+
+                /* console.log('In while ===>');
+                console.log('Date => ', new Date(array[key].setDate(dayOfMonth + addDays)));
+                console.log('Condition > from date ==> ', new Date(array[key].setDate(dayOfMonth + addDays)) >= fromDate);
+                console.log('Condition < toDate ==> ', new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate); */
+                
+                    if (new Date(array[key].setDate(dayOfMonth + addDays)) >= fromDate && new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate){
+                        console.log('Date => ', new Date(array[key].setDate(dayOfMonth + addDays)));
                         arrayValidates.push(
                             new Date(array[key].setDate(dayOfMonth + addDays)),
                             new Date(array[keyTmp + 1].setDate(dayOfMonth + addDays))
@@ -65,14 +68,15 @@ exports.Event = class Event {
                 }
                 earlyWhile.setDate(earlyWhile.getDate() + 1);
             }
+            console.log("array validates end ===> ", arrayValidates);
         return arrayValidates;
     }
 
     recoverAvalaibleDatesUniques(array, arrayValidates, fromDate, toDate) {
-        for(var key in array) {
+        for(let key in array) {
             if(Number.isInteger(key / 2)) {
-                var earlyWhile = array[key];
-                var keyTmp = parseInt(key);
+                let earlyWhile = array[key];
+                let keyTmp = parseInt(key);
                 while(earlyWhile <= array[keyTmp + 1]) {
                     if (array[key] >= fromDate && array[key] <= toDate) {
                         arrayValidates.push(array[key]);
@@ -87,11 +91,11 @@ exports.Event = class Event {
     }
 
     removeInavailableDatesRecuring(array, arrayValidates, toDate) {
-        var addDays = 0;
-        for(var key in arrayValidates) {
+        let addDays = 0;
+        for(let key in arrayValidates) {
             if(Number.isInteger(key / 2)) {
-                var keyTmp = parseInt(key);
-                for(var keyToDelete in array) {
+                let keyTmp = parseInt(key);
+                for(let keyToDelete in array) {
                     if (Number.isInteger(keyToDelete / 2)) {
                         while(new Date(array[keyToDelete].setDate(array[keyToDelete].getDate() + addDays)) <= toDate) {
                             let newDate = new Date(array[keyToDelete].setDate(array[keyToDelete].getDate() + addDays));
@@ -102,7 +106,7 @@ exports.Event = class Event {
                                     let keyToDeleteTmp = parseInt(keyToDelete);
                                     arrayValidates.splice(key + 1, 0,
                                         new Date(newDate.setMinutes(array[keyToDeleteTmp].getMinutes() - 30)),
-                                        new Date(array[keyToDelete].setMinutes(array[keyToDelete].getMinutes() + 90))
+                                        new Date(array[keyToDelete].setMinutes(array[keyToDelete].getMinutes() + 60))
                                     );
                                 }
                             }
@@ -112,18 +116,14 @@ exports.Event = class Event {
                 }
             }
         }
-        //console.log('End recuring remove ===> ', arrayValidates);
         return arrayValidates;
     }
 
     removeInavailableDatesUniques(array, arrayValidates) {
-        /* console.log('ArrayValidates ==> ', arrayValidates);
-        console.log('\n');
-        console.log('arrayToDelete ==> ', array); */
-        for(var key in arrayValidates) {
+        for(let key in arrayValidates) {
             if(Number.isInteger(key / 2)) {
                 let keyTmp = parseInt(key);
-                for(var keyToDelete in array) {
+                for(let keyToDelete in array) {
                     if(Number.isInteger(keyToDelete / 2)) {
                         if (arrayValidates[key].getDate() == array[keyToDelete].getDate() &&
                         arrayValidates[key].getMonth() == array[keyToDelete].getMonth() &&
@@ -146,9 +146,9 @@ exports.Event = class Event {
     }
 
     createSentence(array) {
-        var sentence = "We are are available"
-        for(var key in array) {
-            var keyTmp = parseInt(key);
+        let sentence = "We are available :";
+        for(let key in array) {
+            let keyTmp = parseInt(key);
             let MinutesEarly = array[key].getMinutes();;
             if (MinutesEarly == 0) {
                 MinutesEarly += "0";
@@ -160,83 +160,21 @@ exports.Event = class Event {
                 }
             }
             if (Number.isInteger(key / 2)) {
-                sentence += " the " + array[key].getDate() + "/" + array[key].getMonth() + "/" + array[key].getFullYear() + " from " + array[key].getHours() + ":" + MinutesEarly + " to " + array[keyTmp + 1].getHours() + ":" + MinutesEnd;
-                if (array[keyTmp + 2] != undefined) {
-                    sentence += " and";
+                if (array[keyTmp - 1] != undefined &&
+                array[keyTmp - 1].getDate() == array[key].getDate() &&
+                array[keyTmp - 1].getMonth() == array[key].getMonth()) {
+                    sentence += " and" 
                 } else {
+                    sentence += "\nThe " + array[key].getDate() + "/" + array[key].getMonth() + "/" + array[key].getFullYear();
+                }
+                sentence  += " from " + array[key].getHours() + ":" + MinutesEarly + " to " + array[keyTmp + 1].getHours() + ":" + MinutesEnd;
+                if (array[keyTmp + 2] == undefined) {
                     sentence += ".";
                 }
             }
         }
         console.log(sentence);
     }
-
-            /* console.log("element ===> ", element);
-            if(Number.isInteger(i /2)) {
-                if (i != 0 && i != openDatesRecurring.length - 1) {
-                    sentence += ", "  
-                } else if (i == 0) {
-                    sentence += "every "; 
-                }
-                i++;
-                console.log("i ==> " + i, "sentence ==> ", sentence);
-                sentence += this.recoverDay(element);
-            } else {
-
-            } */
-/*             if (Number.isInteger(i /2)) {
-                var startDate = false;
-                if (element < toDate) {
-                    startDate = true;
-                }
-            } else {
-                var endDate = false;
-                if (element > fromDate) {
-                    endDate = true;
-                }
-            }
-            if (startDate || endDate) {
-                console.log(this.DateRendezVous(fromDate, toDate));
-            }
-            i++;
-        });
-        console.log(sentence);
-    }
-        DateRendezVous() {
-            
-        } */
-/*     recoverDay(date) {
-        switch (date.getDay()) {
-            case 0:
-                return "Monday";
-                break;
-            case 1:
-                return "Tuesday";
-                break;
-            case 2:
-                return "Wednesday";
-                break
-            case 3:
-                return "Thursday";
-                break
-            case 4:
-                return "Friday";
-                break
-            case 5:
-                return "Saturday";
-                break
-            case 6:
-                return "Sunday";
-                break
-            default:
-                break;
-        }
-    } */
 };
-
-///récupérer dates dispo
-///bouclé sur date début date de fin
-///récuper les date qui correspondent
-///vérifier heures
 
 exports.Event;
