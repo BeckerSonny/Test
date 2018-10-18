@@ -32,10 +32,8 @@ exports.Event = class Event {
     availabilities(fromDate, toDate) {
         allDatesAvailable = this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
         allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
-        //console.log('Validates array before delete => ', allDatesAvailable);
         allDatesAvailable = this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
         allDatesAvailable = this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
-        //console.log('Validates array after delete => ', allDatesAvailable);
         this.createSentence(allDatesAvailable);
     }
 
@@ -45,18 +43,8 @@ exports.Event = class Event {
         for(let key in array) {
             let earlyWhile = array[key];
             let keyTmp = parseInt(key);
-            /* console.log("Array Key ==> ", array[key]);
-            console.log("fromDate ==> ", fromDate);
-            console.log("toDate ==> ", toDate);
-            console.log("\n"); */
             while(earlyWhile <= array[keyTmp + 1]) {
                 let dayOfMonth = array[key].getDate();
-
-                /* console.log('In while ===>');
-                console.log('Date => ', new Date(array[key].setDate(dayOfMonth + addDays)));
-                console.log('Condition > from date ==> ', new Date(array[key].setDate(dayOfMonth + addDays)) >= fromDate);
-                console.log('Condition < toDate ==> ', new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate); */
-                
                     if (new Date(array[key].setDate(dayOfMonth + addDays)) >= fromDate && new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate){
                         console.log('Date => ', new Date(array[key].setDate(dayOfMonth + addDays)));
                         arrayValidates.push(
