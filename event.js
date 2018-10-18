@@ -38,7 +38,6 @@ exports.Event = class Event {
     }
 
     recoverAvalaibleDatesRecurring(array, arrayValidates, fromDate, toDate) {
-        console.log("array recover recurring ==> ", array);
         let addDays = 0;
         for(let key in array) {
             let earlyWhile = array[key];
@@ -46,7 +45,6 @@ exports.Event = class Event {
             while(earlyWhile <= array[keyTmp + 1]) {
                 let dayOfMonth = array[key].getDate();
                     if (new Date(array[key].setDate(dayOfMonth + addDays)) >= fromDate && new Date(array[key].setDate(dayOfMonth + addDays)) <= toDate){
-                        console.log('Date => ', new Date(array[key].setDate(dayOfMonth + addDays)));
                         arrayValidates.push(
                             new Date(array[key].setDate(dayOfMonth + addDays)),
                             new Date(array[keyTmp + 1].setDate(dayOfMonth + addDays))
@@ -56,7 +54,6 @@ exports.Event = class Event {
                 }
                 earlyWhile.setDate(earlyWhile.getDate() + 1);
             }
-            console.log("array validates end ===> ", arrayValidates);
         return arrayValidates;
     }
 
