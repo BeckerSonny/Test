@@ -41,6 +41,9 @@ exports.Event = class Event {
     availabilities(fromDate, toDate) {
         allDatesAvailable = this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
         allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
+        allDatesAvailable = this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
+        allDatesAvailable = this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
+        console.log('\n\n\n');
         console.log('array ==> ', allDatesAvailable);
     }
 
@@ -68,17 +71,63 @@ exports.Event = class Event {
         }
         return arrayValidates;
     }
+
     recoverAvalaibleDatesUniques(array, arrayValidates, fromDate, toDate) {
         for(var key in array) {
             if(Number.isInteger(key / 2)) {
                 var earlyWhile = array[key];
                 var keyTmp = parseInt(key);
                 while(earlyWhile <= array[keyTmp + 1]) {
-                    console.log(earlyWhile);
                     if (array[key] >= fromDate && array[key] <= toDate) {
                         arrayValidates.push(array[key]);
                     }
                     earlyWhile.setDate(earlyWhile.getDate() + 1);
+                }
+            }
+        }
+        return arrayValidates;
+    }
+
+    removeInavailableDatesRecuring(array, arrayValidates, toDate) {
+        var addDays = 0;
+        for(var key in arrayValidates) {
+            if(Number.isInteger(key / 2)) {
+                var keyTmp = parseInt(key);
+                for(var keyToDelete in array) {
+                    var dayOfMonth = array[keyToDelete].getDate();
+                    while(new Date(array[keyToDelete].setDate(dayOfMonth + addDays)) <= toDate) {
+                        if (arrayValidates[key].getDate() == array[keyToDelete].getDate() &&
+                        arrayValidates[key].getMonth() == array[keyToDelete].getMonth() &&
+                        arrayValidates[key].getYear() == array[keyToDelete].getYear()) {
+                            if (array[keyToDelete].getHours() >= arrayValidates[key].getHours()) {
+                                keyToDeleteTmp = parseInt(keyToDelete);
+                                arrayValidates.splice(key + 1, 0, array[keyToDelete], array[keyToDeleteTmp + 1]);
+                            }
+                        }
+                    addDays += 7;
+                    }
+                }
+            }
+        }
+        return arrayValidates;
+    }
+
+    removeInavailableDatesUniques(array, arrayValidates) {
+        console.log('Remove unique');
+        for(var key in arrayValidates) {
+            console.log("Key / 2 ==> ", key / 2)
+            if(Number.isInteger(key / 2)) {
+                let keyTmp = parseInt(key);
+                for(var keyToDelete in array) {
+                    console.log("Array key to delete ==> ", array[keyToDelete]);
+                    if (arrayValidates[key].getDate() == array[keyToDelete].getDate() &&
+                    arrayValidates[key].getMonth() == array[keyToDelete].getMonth() &&
+                    arrayValidates[key].getYear() == array[keyToDelete].getYear()) {
+                        if (array[keyToDelete].getHours() >= arrayValidates[key].getHours()) {
+                            let keyToDeleteTmp = parseInt(keyToDelete);
+                            arrayValidates.splice(key + 1, 0, array[keyToDelete], array[keyToDeleteTmp + 1]);
+                        }
+                    }
                 }
             }
         }
